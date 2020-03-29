@@ -2,7 +2,7 @@ package com.revature.repository;
 
 import com.revature.model.Account;
 
-public interface DAO <T> {
+public interface InterfaceDAO <T> {
 	boolean addAccount(Account account); 
 	//void deleteAccount(Account account); 
 	//void updateAccount(Account account); 
@@ -10,4 +10,5 @@ public interface DAO <T> {
 	double depositMoney(Double amount);
 	double withdrawalMoney(Double amount);
 	boolean checkUsername(String username);
+	boolean transferMoney(String username, double amount);
 }

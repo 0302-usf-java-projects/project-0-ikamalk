@@ -5,15 +5,12 @@ import com.revature.exception.BalanceTooLowException;
 import com.revature.exception.PasswordTooShortException;
 import com.revature.model.Account;
 import java.util.Scanner;
-import java.util.Set;
-import com.revature.model.*;
-
 import com.revature.repository.*;
-import java.util.HashSet;
+
 public class BankServices {
-	private static AccountDAO accountManager = new AccountDAO(); 
+	private static BankDAO accountManager = new BankDAO(); 
 	private static Scanner scanner = new Scanner(System.in); 
-	private static User user = new User();
+	private static Account user = new Account();
 	public void createAccount() {
 		
 		int numTries = 0; 
@@ -65,5 +62,9 @@ public class BankServices {
         return  accountManager.withdrawalMoney(input);
       }
   }
+    
+    public boolean attemptTranfer(String username, double amount) {
+      return  accountManager.transferMoney(username, amount);
+    }
 	
 }

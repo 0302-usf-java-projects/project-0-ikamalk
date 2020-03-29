@@ -8,20 +8,19 @@ import java.sql.SQLException;
 import java.sql.Types;
 import com.revature.connection.ConnectionUtil;
 import com.revature.model.Account;
-import com.revature.model.User;
-import com.revature.exception.*;
 
-public class AccountDAO implements DAO <Account>{
+
+public class BankDAO implements InterfaceDAO <Account>{
   
-  static User user = new User();
+  static Account user = new Account();
   WaitClass wait = new WaitClass();
 
 
 	@Override
 	public boolean addAccount(Account account)  {
 	  wait.start();
-	  
 	  if (checkUsername(account.getUsername())) {
+	      wait.stop();
 	    return false;
 	  } else {
 	    try(Connection conn = ConnectionUtil.connect()) {
@@ -30,13 +29,15 @@ public class AccountDAO implements DAO <Account>{
       ps.setString(1, account.getUsername());
       ps.setString(2, account.getPassword());
       ps.setDouble(3, account.getBalance());
-      boolean b=ps.execute();
+      ps.execute();
         wait.stop();
       ps.close();
       System.out.println();
+      return true;
     } catch(SQLException e) {
       e.printStackTrace();
     }
+	    wait.stop();
 	    return true;
 	  }
 	}
@@ -74,6 +75,7 @@ public class AccountDAO implements DAO <Account>{
 
   @Override
   public double depositMoney(Double amount) {
+    wait.start();
   try(Connection conn = ConnectionUtil.connect()) {
       String sql = "{ ? = call depositMoney(?,?) }";
       CallableStatement cs = conn.prepareCall(sql);
@@ -84,10 +86,14 @@ public class AccountDAO implements DAO <Account>{
       double result  = cs.getDouble(1);
       user.setBalance(result);
           cs.close();
+          wait.stop();
+          System.out.println();
       return result;
     }catch(SQLException e) {
       e.printStackTrace();
     }
+  wait.stop();
+  System.out.println();
     return -1;
   }
 
@@ -96,6 +102,7 @@ public class AccountDAO implements DAO <Account>{
 
   @Override
   public double withdrawalMoney(Double amount) {
+    wait.start();
     try(Connection conn = ConnectionUtil.connect()) {
       String sql = "{ ? = call withdrawalMoney(?,?) }";
       CallableStatement cs = conn.prepareCall(sql);
@@ -106,10 +113,14 @@ public class AccountDAO implements DAO <Account>{
       double result  = cs.getDouble(1);
       user.setBalance(result);
           cs.close();
+          wait.stop();
+          System.out.println();
       return result;
     }catch(SQLException e) {
       e.printStackTrace();
     }
+    wait.stop();
+    System.out.println();
     return -1;
   }
 
@@ -132,6 +143,39 @@ public class AccountDAO implements DAO <Account>{
       e.printStackTrace();
     }
    return false;
+  }
+
+
+
+
+  @Override
+  public boolean transferMoney(String username, double amount) {
+    wait.start();
+    if (!checkUsername(username)) {
+      wait.stop();
+      return false;
+    } else {
+    try(Connection conn = ConnectionUtil.connect()) {
+      String sql = "{ ? = call transferMoney(?,?,?) }";
+      CallableStatement cs = conn.prepareCall(sql);
+      cs.registerOutParameter(1, Types.DOUBLE);
+      cs.setString(2, username);
+      cs.setDouble(3, amount);
+      cs.setInt(4, user.getId());
+      cs.execute();
+      double result  = cs.getDouble(1);
+      user.setBalance(result);
+      cs.close();
+      wait.stop();
+      System.out.println();
+      return true;
+    }catch(SQLException e) {
+      e.printStackTrace();
+    }
+    wait.stop();
+    System.out.println();
+    return false;
+  }
   }
 
 }
