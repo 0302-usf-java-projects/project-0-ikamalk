@@ -1,5 +1,6 @@
 package com.revature.repository;
 
+import java.util.List;
 import com.revature.model.Account;
 
 public interface InterfaceDAO <T> {
@@ -11,4 +12,5 @@ public interface InterfaceDAO <T> {
 	double withdrawalMoney(Double amount);
 	boolean checkUsername(String username);
 	boolean transferMoney(String username, double amount);
+	List getMyTransations();
 }

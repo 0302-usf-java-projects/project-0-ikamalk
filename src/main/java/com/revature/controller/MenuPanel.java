@@ -41,9 +41,15 @@ public class MenuPanel {
 				makeTransfer();
 				break; 
 			case "4":
-				logOut(); 
-				runMainMenu = false; 
+				viewMyBalance();
 				break;
+			case "5":
+              viewMyTransactions();
+              break;
+			case "6":
+              logOut(); 
+              runMainMenu = false; 
+              break;
 			default:
 				System.out.println("I'm sorry, I didn't understand that. Can you try again?");
 			}
@@ -155,13 +161,33 @@ public class MenuPanel {
 		}
 	}
 	
+	public void viewMyTransactions() {
+	  List<Transaction> transactions = bs.getTransaction();
+	  for(Transaction transaction: transactions) {
+	    System.out.println("****************************************************************");
+	    System.out.println(transaction.operation+ " | " +transaction.amount+" | "+transaction.time_transaction);
+
+	  }
+	     System.out.println("****************************************************************");
+
+	}
+	
+	public void viewMyBalance() {
+      System.out.println("_______________________________________________________________________");
+      System.out.println("My balance:"+user.getBalance());
+      System.out.println("_______________________________________________________________________");
+
+	}
+	
 
 	
 	public String runMainMenu() {
 		System.out.println("1 Make a deposit");
 		System.out.println("2 Make a withdrawal");
 		System.out.println("3 Make a transfer money");
-		System.out.println("4 Logout to the welcome menu");  
+	    System.out.println("4 View my balance");
+		System.out.println("5 view my transactions");
+		System.out.println("6 Logout to the welcome menu");  
 		String input = sc.nextLine();
 		String result = "0";
 		switch (input) {
@@ -177,6 +203,12 @@ public class MenuPanel {
 		case "4": 
 			result = "4";
 			break;
+		case "5": 
+          result = "5";
+          break;
+		case "6": 
+          result = "6";
+          break;
 		default: 
 			System.out.println("I'm sorry, I didn't understand that option. Returning to the menu."); 
             System.out.println("_______________________________________________________________________");

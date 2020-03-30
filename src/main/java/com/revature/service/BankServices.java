@@ -4,6 +4,7 @@ import com.revature.exception.AccountNameAlreadyTakenException;
 import com.revature.exception.BalanceTooLowException;
 import com.revature.exception.PasswordTooShortException;
 import com.revature.model.Account;
+import java.util.List;
 import java.util.Scanner;
 import com.revature.repository.*;
 
@@ -65,6 +66,10 @@ public class BankServices {
     
     public boolean attemptTranfer(String username, double amount) {
       return  accountManager.transferMoney(username, amount);
+    }
+    
+    public List getTransaction() {
+      return accountManager.getMyTransations();
     }
 	
 }

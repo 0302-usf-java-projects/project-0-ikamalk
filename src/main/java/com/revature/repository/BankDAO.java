@@ -6,8 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import com.revature.connection.ConnectionUtil;
 import com.revature.model.Account;
+import com.revature.model.Transaction;
 
 
 public class BankDAO implements InterfaceDAO <Account>{
@@ -176,6 +179,30 @@ public class BankDAO implements InterfaceDAO <Account>{
     System.out.println();
     return false;
   }
+  }
+
+
+
+
+  @Override
+  public List getMyTransations() {
+    try(Connection conn = ConnectionUtil.connect()) {
+      String sql = "select * from Bank_Transaction where account_id="+user.getId();
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ResultSet rs=ps.executeQuery();
+      List<Transaction> myTransaction = new ArrayList<Transaction>();
+      while(rs.next()) {
+        myTransaction.add(new Transaction(rs.getString(2),rs.getDouble(3),rs.getString(4)));
+      }
+      rs.close();
+      ps.close();
+      wait.stop();
+      System.out.println();
+      return myTransaction;
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+   return null;
   }
 
 }
