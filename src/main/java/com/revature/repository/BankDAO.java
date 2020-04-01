@@ -8,15 +8,18 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.log4j.Logger;
+import com.revature.MainDriver;
 import com.revature.connection.ConnectionUtil;
 import com.revature.model.Account;
 import com.revature.model.Transaction;
 
 
-public class BankDAO implements InterfaceDAO <Account>{
+public class BankDAO implements InterfaceDAO <Account,Transaction>{
   
   static Account user = new Account();
   WaitClass wait = new WaitClass();
+  public static final Logger logger = Logger.getLogger(MainDriver.class);
 
 
 	@Override
@@ -27,11 +30,13 @@ public class BankDAO implements InterfaceDAO <Account>{
 	    return false;
 	  } else {
 	    try(Connection conn = ConnectionUtil.connect()) {
-      String sql = "insert into account (username, password, balance) values(?,?,?)";
+      String sql = "insert into account (username, password, balance,typeAccount, isActivated) values(?,?,?,?,?)";
       PreparedStatement ps = conn.prepareStatement(sql);
       ps.setString(1, account.getUsername());
       ps.setString(2, account.getPassword());
       ps.setDouble(3, account.getBalance());
+      ps.setString(4, "customer");
+      ps.setBoolean(5, false);
       ps.execute();
         wait.stop();
       ps.close();
@@ -61,6 +66,8 @@ public class BankDAO implements InterfaceDAO <Account>{
          user.setId(b.getInt(1));
          user.setUsername(b.getString(2));
          user.setBalance(b.getDouble(4));
+         user.setRole(b.getString(6));
+         user.setActivated(b.getBoolean(7));
          user.setLoggedIn(true);
        } else {
          response = false;
@@ -72,7 +79,9 @@ public class BankDAO implements InterfaceDAO <Account>{
      } catch(SQLException e) {
        e.printStackTrace();
      }
+    logger.error("error with login");
     return false;
+
   }
 
 
@@ -97,6 +106,8 @@ public class BankDAO implements InterfaceDAO <Account>{
     }
   wait.stop();
   System.out.println();
+  logger.error("error with depositMoney");
+
     return -1;
   }
 
@@ -124,6 +135,7 @@ public class BankDAO implements InterfaceDAO <Account>{
     }
     wait.stop();
     System.out.println();
+    logger.error("error with withdrawalMoney");
     return -1;
   }
 
@@ -145,6 +157,7 @@ public class BankDAO implements InterfaceDAO <Account>{
     } catch(SQLException e) {
       e.printStackTrace();
     }
+    logger.error("error with checkUsername");
    return false;
   }
 
@@ -177,6 +190,7 @@ public class BankDAO implements InterfaceDAO <Account>{
     }
     wait.stop();
     System.out.println();
+    logger.error("error with transferMoney");
     return false;
   }
   }
@@ -184,15 +198,70 @@ public class BankDAO implements InterfaceDAO <Account>{
 
 
 
+
+
+
+
+
   @Override
-  public List getMyTransations() {
+  public List<Account> getListAccountsPending() {
+    wait.start();
     try(Connection conn = ConnectionUtil.connect()) {
-      String sql = "select * from Bank_Transaction where account_id="+user.getId();
+      String sql = "select * from Account where typeaccount='customer' and isactivated= false";
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ResultSet rs=ps.executeQuery();
+      List<Account> pendingAccounts = new ArrayList<Account>();
+      while(rs.next()) {
+        pendingAccounts.add(new Account(rs.getString(2)));
+      }
+      rs.close();
+      ps.close();
+      wait.stop();
+      System.out.println();
+      return pendingAccounts;
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+    logger.error("error with getListAccountsPending");
+   return null;
+  }
+
+
+
+
+  @Override
+  public boolean activateAccount(String username) {
+    wait.start();
+    try(Connection conn = ConnectionUtil.connect()) {
+      String sql = "update Account set isactivated=true where username='"+username+"'";
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ps.execute();
+      ps.close();
+      wait.stop();
+      System.out.println();
+      return true;
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+    logger.error("error with activateAccount");
+   return false;
+  }
+
+
+
+
+
+
+  @Override
+  public List<Transaction> getTransactionUser(String username) {
+    wait.start();
+    try(Connection conn = ConnectionUtil.connect()) {
+      String sql = "select * from Bank_Transaction where username='"+username+"'";
       PreparedStatement ps = conn.prepareStatement(sql);
       ResultSet rs=ps.executeQuery();
       List<Transaction> myTransaction = new ArrayList<Transaction>();
       while(rs.next()) {
-        myTransaction.add(new Transaction(rs.getString(2),rs.getDouble(3),rs.getString(4)));
+        myTransaction.add(new Transaction(rs.getString(3),rs.getDouble(4),rs.getString(5)));
       }
       rs.close();
       ps.close();
@@ -202,7 +271,37 @@ public class BankDAO implements InterfaceDAO <Account>{
     } catch(SQLException e) {
       e.printStackTrace();
     }
+    logger.error("error with getTransactionUser");
    return null;
   }
+
+
+
+
+  @Override
+  public List<Transaction> getMyTransactions() {
+    wait.start();
+    try(Connection conn = ConnectionUtil.connect()) {
+      String sql = "select * from Bank_Transaction where account_id="+user.getId();
+      PreparedStatement ps = conn.prepareStatement(sql);
+      ResultSet rs=ps.executeQuery();
+      List<Transaction> myTransaction = new ArrayList<Transaction>();
+      while(rs.next()) {
+        myTransaction.add(new Transaction(rs.getString(3),rs.getDouble(4),rs.getString(5)));
+      }
+      rs.close();
+      ps.close();
+      wait.stop();
+      System.out.println();
+      return myTransaction;
+    } catch(SQLException e) {
+      e.printStackTrace();
+    }
+    logger.error("error with getMyTransactions");
+   return null;
+  }
+  
+  
+
 
 }

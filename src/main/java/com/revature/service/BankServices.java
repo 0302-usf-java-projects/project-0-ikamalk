@@ -4,6 +4,7 @@ import com.revature.exception.AccountNameAlreadyTakenException;
 import com.revature.exception.BalanceTooLowException;
 import com.revature.exception.PasswordTooShortException;
 import com.revature.model.Account;
+import com.revature.model.Transaction;
 import java.util.List;
 import java.util.Scanner;
 import com.revature.repository.*;
@@ -68,8 +69,20 @@ public class BankServices {
       return  accountManager.transferMoney(username, amount);
     }
     
-    public List getTransaction() {
-      return accountManager.getMyTransations();
+    public List<Transaction> getTransaction() {
+      return accountManager.getMyTransactions();
+    }
+    
+    public List<Account> getPendingAccounts() {
+      return accountManager.getListAccountsPending();
+    }
+    
+    public List<Transaction> getTransactionsUser(String username) {
+      return accountManager.getTransactionUser(username);
+    }
+    
+    public boolean activateAccount(String username) {
+      return accountManager.activateAccount(username);
     }
 	
 }

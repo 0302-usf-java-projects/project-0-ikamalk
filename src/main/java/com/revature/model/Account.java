@@ -5,15 +5,37 @@ public class Account {
     private static String password;
 	private static double balance = 0; 
 	private static boolean loggedIn = false;
+	private static String role;
+	private static boolean isActivated;
 	
 	
-	public Account() {
+	public String getRole() {
+    return role;
+  }
+
+  public void setRole(String role) {
+    Account.role = role;
+  }
+
+  public boolean isActivated() {
+    return isActivated;
+  }
+
+  public void setActivated(boolean isActivated) {
+    Account.isActivated = isActivated;
+  }
+
+  public Account() {
 
 	}
 	
 	public Account(String username,String password) {
 	  Account.username = username;
 	  Account.password = password;
+	}
+	
+	public Account(String username) {
+	   Account.username = username;
 	}
 	
     public int getId() {
